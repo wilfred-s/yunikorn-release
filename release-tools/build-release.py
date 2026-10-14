@@ -76,10 +76,10 @@ def build_release(email_address: str):
     release_top_path = os.path.join(os.path.dirname(tools_dir), "release-top-level-artifacts")
     helm_chart_path = os.path.join(os.path.dirname(tools_dir), "helm-charts")
 
-    # setup artifacts in the release base dir
+    # setup artefacts in the release base dir
     setup_base_dir(release_top_path, helm_chart_path, release_base, version)
 
-    # download source code from github repo
+    # download source code from GitHub repo
     sha = dict()
     for repo_meta in repo_list:
         if "name" not in repo_meta:
@@ -92,14 +92,14 @@ def build_release(email_address: str):
         sha[name] = download_sourcecode(release_base, repo_meta)
         update_make_version(name, os.path.join(release_base, alias), version)
 
-    # update required Golang, NodeJS and Angular versions
+    # update required Golang, Node.js and Angular versions
     update_required_versions(release_base, repo_list)
 
     # update the sha for all repos in the build scripts
     # must be run after all repos have been checked out
     update_sha(release_base, repo_list, sha)
 
-    # merge licenses for anything that was added not part of Apache
+    # merge licences for anything that was added not part of Apache
     merge_licenses(release_base, repo_list)
 
     # build the helm package
@@ -156,7 +156,7 @@ def setup_base_dir(release_top_path: str, helm_path: str, base_path: str, versio
 
     # setup base dir
     os.makedirs(base_path)
-    # copy top level artifacts
+    # copy top level artefacts
     for file in os.listdir(release_top_path):
         org = os.path.join(release_top_path, file)
         dest = os.path.join(base_path, file)
@@ -226,7 +226,7 @@ def download_sourcecode(base_path: str, repo_meta: dict) -> str:
     sha = tags.commit.hexsha
     print(" - tag sha:     %s" % sha)
 
-    # avoid pulling dependencies from github,
+    # avoid pulling dependencies from GitHub,
     # add replace to go mod files to make sure it builds locally
     update_dep_ref(name, os.path.join(base_path, alias))
     return sha
@@ -255,7 +255,7 @@ def build_web_and_generate_hashes(staging_dir: str, release_name: str, arch: str
         print("Errors:", result.stderr)
         fail("failed to build yunikorn-web architecture '%s'" % arch)
     hashes = get_checksum(os.path.join(web_dir, "build/prod/yunikorn-web"), "yunikorn-web")
-    # clean up otherwise build does not generate new artifacts
+    # clean up otherwise build does not generate new artefacts
     result = subprocess.run(['make', 'clean'], cwd=web_dir, capture_output=True)
     # Access the standard output and standard error
     if result.returncode:
@@ -281,7 +281,7 @@ def build_shim_and_generate_hashes(staging_dir: str, release_name: str, arch: st
     adm_hash = get_checksum(os.path.join(shim_dir, "build/bin/yunikorn-admission-controller"), "yunikorn-admission-controller")
     scheduler_hash = get_checksum(os.path.join(shim_dir, "build/bin/yunikorn-scheduler"), "yunikorn-scheduler")
     hashes = "\n".join([adm_hash, scheduler_hash])
-    # clean up otherwise build does not generate new artifacts
+    # clean up otherwise build does not generate new artefacts
     result = subprocess.run(['make', 'clean'], cwd=shim_dir, capture_output=True)
     # Access the standard output and standard error
     if result.returncode:
@@ -380,7 +380,7 @@ def update_sha_web(repo_name: str, local_repo_path: str, sha: dict):
 
 
 # update git revision in the makefiles
-def update_sha(release_base: str, repo_list: dict, sha: dict):
+def update_sha(release_base: str, repo_list: list[dict], sha: dict):
     for repo_meta in repo_list:
         repo_name = repo_meta["name"]
         switcher = {
@@ -476,7 +476,7 @@ def update_required_node_and_angular_versions(base_path: str, local_repo_path: s
 
 
 # update required versions in the README.md
-def update_required_versions(release_base: str, repo_list: dict):
+def update_required_versions(release_base: str, repo_list: list[dict]):
     switcher = {
         "yunikorn-k8shim": update_required_go_versions,
         "yunikorn-web": update_required_node_and_angular_versions,
@@ -571,7 +571,7 @@ def call_helm(staging_dir: str, base_path: str, version: str, email_address: str
             command.extend(['--sign', '--key', email_address, '--keyring', secring])
         else:
             print("Packing helm chart (unsigned)\nFile with pre gpg2 keys not found, expecting: %s" % secring)
-            email_address = None
+            email_address = ""
     else:
         print("Packaging helm chart (unsigned)")
     command.extend([release_helm_path, '--destination', staging_dir])
@@ -597,9 +597,9 @@ def call_helm(staging_dir: str, base_path: str, version: str, email_address: str
         print("Helm package digest: %s  %s\n" % (h.hexdigest(), helm_package))
 
 
-# Merge the added lines from the license files
-def merge_licenses(base_dir: str, repo_list: dict):
-    start = 202  # Apache License is 202 lines
+# Merge the added lines from the licence files
+def merge_licenses(base_dir: str, repo_list: list[dict]):
+    start = 202  # Apache Licence is 202 lines
     lic = os.path.join(base_dir, "LICENSE")
     if not os.path.isfile(lic):
         fail("license does not exist at top level staging directory")

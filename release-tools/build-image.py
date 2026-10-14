@@ -102,7 +102,7 @@ def get_repro_version(base: str) -> str:
 
 
 # load the config, based on the build-release.py code.
-def load_config() -> tuple[str, dict, str]:
+def load_config() -> tuple[str, list[dict], str]:
     tools_dir = ensure_str(os.path.dirname(os.path.realpath(__file__)))
     # load configs
     config_file = os.path.join(tools_dir, "release-configs.json")
